@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var REAL_ESTATE_OFFERS_LENGTH = 8;
   var PINS_WIDTH = 40;
   var PINS_HEIGHT = 44;
   var MAIN_PIN_CENTER_X = 600;
@@ -60,6 +59,7 @@
     }
     return index;
   }
+
   var map = document.querySelector('.map');
   var renderOfferCardSuccess = function (offerCard, i) {
     var cardFragment = document.createDocumentFragment();
@@ -139,12 +139,31 @@
 
   var renderPinsSuccess = function (pins) {
     var fragment = document.createDocumentFragment();
-
-    for (var i = 0; i < REAL_ESTATE_OFFERS_LENGTH; i++) {
+    for (var i = 0; i < pins.slice(0, 5).length; i++) {
       fragment.appendChild(getPinsOnMap(pins[i]));
     }
     pinsOnMap.appendChild(fragment);
   };
+
+  var filterPrice = document.querySelector('#housing-price');
+
+  var filterData = function (data) {
+    return data.filter(function (arr) {
+      return arr.offer.price >= 50000;
+    });
+  };
+  var renderPinsAfterRender = function (data) {
+    var filteredData = filterData(data);
+    renderPinsSuccess(filteredData);
+  };
+
+  filterPrice.addEventListener('change', function () {
+    var button = document.querySelectorAll('.map__pin--user');
+    window.backend.load(renderPinsAfterRender, renderError);
+    for (var i = 0; i < button.length; i++) {
+      button[i].remove();
+    }
+  });
 
   var inputAddress = document.querySelector('input#address');
   inputAddress.value = MAIN_PIN_CENTER_X + ', ' + MAIN_PIN_CENTER_Y;
@@ -224,7 +243,7 @@
     document.addEventListener('mousemove', mainPinMouseMoveHandler);
     document.addEventListener('mouseup', mainPinMouseUpHandler);
     if (mapPins.childElementCount > MAP_PINS_DEFAULT_CHILD_AMOUNT) {
-      for (var i = 0; i < REAL_ESTATE_OFFERS_LENGTH; i++) {
+      for (var i = 0; i < 5; i++) {
         button[i].remove();
       }
     }
